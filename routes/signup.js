@@ -1,16 +1,7 @@
 const router = require('express').Router();
-const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
-const userSchema = new mongoose.Schema({
-    username: String,
-    password: String,
-    email: String,
-    fName: String,
-    lName: String
-});
-const User = mongoose.model('user', userSchema);
+const User = require('../models/userModel');
 
 router.post('/signup', async (req, res) => {
 
@@ -22,7 +13,7 @@ router.post('/signup', async (req, res) => {
         if (!foundUser) {
             
             // Hash Password
-            const hash = brypt.hash(req.body.password, process.env.saltRounds);
+            const hash = await bcrypt.hash(req.body.password, 8);
 
             let newUser = new User({
                 username: req.body.username,
@@ -47,7 +38,7 @@ router.post('/signup', async (req, res) => {
         
         } else {
             // If username is found in database send error
-            res.json( {message: "User Already Exists!"} );
+            res.json( {error: "User Already Exists!"} );
         };
     } catch (error) {
         console.log(error);
