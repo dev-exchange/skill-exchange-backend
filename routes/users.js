@@ -1,27 +1,100 @@
 const router = require('express').Router();
-const User = require('../models/userModel');
+const Users = require('../models/userModel');
+const authenticate = require('../utils/authenticate');
 
 
-router.get('/users', async (req, res) => {
-    try {
-        const users = await User.find();
-        res.json(users);
-    } catch (error) {
-        res.json({error: error})
-    }
+function profileOwner (user, res) {    
+    // Check to See if they are the profile owner            
+    if (user.username === res.locals.username) {
+        return true;    
+    } else;
+    // Request is not from profile owner
+        return false; 
+};
+
+router.get('/users', authenticate, async (req, res, next) => {
+    const users = await Users.find();
+    if (users) {
+        res.status(200).json(users);
+    } else {
+        res.status(500);
+        next(new Error('Can Not Get Users'));
+    };
 });
 
-router.get('/users/:username', async (req, res) => {
-    try {
-        const user = await User.findOne({username: req.params.username});
-        if (user) {
-            res.json(user);
+// Route to Get User
+router.get('/users/:username', authenticate, async (req, res, next) => {
+    const user = await Users.findOne({username: req.params.username});
+    if (user) {
+        let owner = profileOwner(user, res);
+        if (owner) {
+            // Send All Data Back to User
+            res.status(200).json(user);
         } else {
-            res.json({error: "User Not Found"});
+            // Send Partial Data Back to User
+            res.status(200).json({
+                username: user.username,
+                email: user.email
+            });
         };
-    } catch (error) {
-        res.json({error: error})
-    }
+    } else {
+        res.status(404);
+        next(new Error('User Not Found!'));
+    };
+});
+
+// Route to Update User
+router.put('/users/:username', authenticate, async (req, res, next) => {
+    //Find user in database
+    let user = await Users.findOne({username: req.params.username});
+    if (user) {
+        // Make sure user submitting request is the account owner
+        let owner = profileOwner(user, res);
+        if (owner) {
+            // Update Data That Was Sent
+            for (const property in req.body) {
+                user[property] = req.body[property];
+            };
+
+            // Save Updated user to Database
+            user = await user.save();
+            
+            res.status(200).json({
+                message: "User Updated",
+                user: user
+            });
+
+        } else {
+            // Send Back Error
+            res.status(403);
+            next(new Error('Can Only Update Your Account'));
+        };
+    } else {
+        res.status(404);
+        next(new Error('Can Not Update a User That Does Not Exist'));
+    };
+});
+
+// Route to Get User
+router.delete('/users/:username', authenticate, async (req, res, next) => {
+    const user = await Users.findOne({username: req.params.username});
+    if (user) {
+        let owner = profileOwner(user, res);
+        if (owner) {
+            // Delete User
+            await Users.deleteOne({ username: res.locals.username});
+            res.status(200).json({
+                message: "User Deleted",
+                user: user
+            });
+
+        } else {
+            // Send Back Error
+        };
+    } else {
+        res.status(404);
+        next(new Error('User Not Found!'));
+    };
 });
 
 module.exports = router;

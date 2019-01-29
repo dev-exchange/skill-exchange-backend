@@ -6,8 +6,6 @@ require('dotenv').config();
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const helmet = require('helmet');
-const jwt = require('jsonwebtoken');
-const authenticate = require('./utils/authenticate');
 
 // Connect to MongoDB Database
 const mongoose = require('mongoose');
@@ -32,9 +30,13 @@ app.get('/',(req, res) => {
 app.use('/api',signinRoute);
 app.use('/api',signupRoute);
 
-app.use(authenticate);
 // Protected Routes
 app.use('/api', userRoute);
+
+// Error Handler
+app.use((error, req, res, next) => {
+    res.json({error: error.message});
+});
 
 
 // Start Server

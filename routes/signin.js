@@ -3,8 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 
-router.post('/signin', async (req, res) => {
-
+router.post('/signin', async (req, res, next) => {
     // Search for username in the database
     let foundUser = await User.findOne({ username: req.body.username});
     if(foundUser){
@@ -21,14 +20,14 @@ router.post('/signin', async (req, res) => {
             res.status(200).json({
                 token: token,
             });
+            
         } else {
             // If password submitted does not match password in db send back error message
-            res.json({ error: "Username or Password is incorrect"});
+            next(new Error("Username or Password is incorrect"));
         };
-
     } else {
         // If username is not in database send back error message
-        res.json({ error: "Username or Password is incorrect"});
+        next(new Error("Username or Password is incorrect"));
     }; 
 });
 
