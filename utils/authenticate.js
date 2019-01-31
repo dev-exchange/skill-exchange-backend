@@ -1,10 +1,9 @@
 const jwt = require('jsonwebtoken');
 
-function authenticate(req, res, next) {    
+function authenticate(req, res, next) {       
     if (req.headers['x-access-token']) {
         // Verify JWT
         jwt.verify(req.headers['x-access-token'], process.env.SecretKey, (err, decoded) => {
-
             if(err) {
                 // If there's an error set status code and send to error handler
                 res.status(401);

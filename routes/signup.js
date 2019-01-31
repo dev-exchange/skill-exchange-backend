@@ -3,9 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 
-router.post('/signup', async (req, res) => {
-
-    // Search for username in the database
+router.post('/signup', async (req, res, next) => {
     try {
     
         // Search DB for account with provided username
@@ -19,8 +17,8 @@ router.post('/signup', async (req, res) => {
                 username: req.body.username,
                 password: hash,
                 email: req.body.email,
-                fName: req.body.fName,
-                lName: req.body.lName
+                firstName: req.body.firstName,
+                lastName: req.body.lastName
             });
             
             // Save New User to the DB
@@ -40,8 +38,8 @@ router.post('/signup', async (req, res) => {
             // If username is found in database send error
             res.json( {error: "User Already Exists!"} );
         };
-    } catch (error) {
-        console.log(error);        
+    } catch (error) {  
+        next(error)   
     }
 });
 

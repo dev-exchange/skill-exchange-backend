@@ -6,6 +6,7 @@ require('dotenv').config();
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const helmet = require('helmet');
+const errorhandler = require('./utils/errorHandler');
 
 // Connect to MongoDB Database
 const mongoose = require('mongoose');
@@ -15,6 +16,7 @@ mongoose.connect(`mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@${proc
 const signinRoute = require("./routes/signin");
 const signupRoute = require("./routes/signup");
 const userRoute = require('./routes/users');
+const projectRoute = require('./routes/projects');
 
 //Use Middleware 
 app.use(helmet());
@@ -32,12 +34,10 @@ app.use('/api',signupRoute);
 
 // Protected Routes
 app.use('/api', userRoute);
+app.use('/api', projectRoute);
 
 // Error Handler
-app.use((error, req, res, next) => {
-    res.json({error: error.message});
-});
-
+app.use(errorhandler);
 
 // Start Server
 const port = process.env.SRV_PORT || 3000;
