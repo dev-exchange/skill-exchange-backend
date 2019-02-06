@@ -1,19 +1,11 @@
 const router = require('express').Router();
-const User = require('../models/userModel');
+const { User, validate } = require('../models/userModel');
 const authenticate = require('../utils/authenticate');
+const profileOwner = require('../utils/profileOwner');
 
-
-function profileOwner (user, res) {    
-    // Check to See if they are the profile owner            
-    if (user.username === res.locals.username) {
-        return true;    
-    } else;
-    // Request is not from profile owner
-        return false; 
-};
 
 // Route to Get All Users
-router.get('/users', authenticate, async (req, res, next) => {
+router.get('/users', authenticate, async (req, res, next) => {    
     try {
         const users = await User.find();
         if (users) {
@@ -57,6 +49,10 @@ router.get('/users/:username', authenticate, async (req, res, next) => {
 // Route to Update User
 router.put('/users/:username', authenticate, async (req, res, next) => {
     try {
+
+        const {error, value} = validate(req.body, "edit");
+        if(error) return res.json({error: error.message});
+
          //Find user in database
         let user = await User.findOne({username: req.params.username});
         if (user) {
@@ -64,8 +60,8 @@ router.put('/users/:username', authenticate, async (req, res, next) => {
             let owner = profileOwner(user, res);
             if (owner) {
                 // Update Data That Was Sent
-                for (const property in req.body) {
-                    user[property] = req.body[property];
+                for (const property in value) {
+                    user[property] = value[property];
                 };
 
                 // Save Updated user to Database

@@ -1,14 +1,30 @@
 const mongoose = require('mongoose');
 
 const projectSchema = new mongoose.Schema({
-    name: String,
-    description: String,
-    // owner: ID
-    // subscribed: Array of ID's
-    created: Date,
-    updated: Date
+    name: {
+        type: String,
+    },
+    description: {
+        type: String,
+    },
+    owner: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user'
+    },
+    subscribed: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user',
+    }],
+    created: {
+        type: Date,
+        default: Date.now(),
+    },
+    updated: {
+        type: Date,
+        default: Date.now()
+    }
 });
 
-const Projects = mongoose.model('project', projectSchema);
+const Project = mongoose.model('project', projectSchema);
 
-module.exports = Projects;
+module.exports = Project;
