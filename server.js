@@ -10,7 +10,9 @@ const errorhandler = require('./utils/errorHandler');
 
 // Connect to MongoDB Database
 const mongoose = require('mongoose');
-mongoose.connect(`mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}`, {useNewUrlParser: true});
+mongoose.connect(`mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}`, {useNewUrlParser: true}, (err) => {
+    if (err) console.log(err);
+});
 
 // Import Routes
 const signinRoute = require("./routes/signin");
@@ -25,7 +27,7 @@ app.use(bodyParser.json());
 
 // Routing Logic Starts
 app.get('/',(req, res) => {
-    res.send("Main Page!");
+    res.send("<h1>Skill Exchange</h1>");
 });
 
 // Unprotected Routes
