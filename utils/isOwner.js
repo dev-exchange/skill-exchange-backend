@@ -1,9 +1,9 @@
 function isOwner(objectOwner, currentUser) {
     if (objectOwner === currentUser) {
         return true;    
-    } else;
+    } else{;
     // Request is not from objectowner
-        return false;   
+        return false;  
+    };
 }
-// module.exports = { profileOwner, projectOwner};
 module.exports = isOwner;

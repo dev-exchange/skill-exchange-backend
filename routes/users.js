@@ -1,8 +1,7 @@
-const router = require('express').Router();
-const { User, validate } = require('../models/userModel');
-const authenticate = require('../utils/authenticate');
-// const { profileOwner } = require('../utils/verifyOwner');
-const isOwner = require('../utils/isOwner');
+const router = require("express").Router();
+const { User, validate } = require("../models/userModel");
+const authenticate = require("../utils/authenticate");
+const isOwner = require("../utils/isOwner");
 
 
 // Route to Get All Users
