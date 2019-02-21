@@ -1,12 +1,12 @@
 const router = require('express').Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const User = require('../models/userModel');
+const {User} = require('../models/userModel');
 
 router.post('/signin', async (req, res, next) => {
     try {
         // Search for username in the database
-        let foundUser = await User.findOne({ username: req.body.username});
+        let foundUser = await User.findOne({username: req.body.username});
         if(foundUser){
             // compare password to saved hash
             const result = await bcrypt.compare(req.body.password, foundUser.password);    

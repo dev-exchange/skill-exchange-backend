@@ -1,7 +1,7 @@
-const router = require('express').Router();
-const { User, validate } = require('../models/userModel');
-const authenticate = require('../utils/authenticate');
-const profileOwner = require('../utils/profileOwner');
+const router = require("express").Router();
+const { User, validate } = require("../models/userModel");
+const authenticate = require("../utils/authenticate");
+const isOwner = require("../utils/isOwner");
 
 
 // Route to Get All Users
@@ -25,8 +25,7 @@ router.get('/users/:username', authenticate, async (req, res, next) => {
     try {
         const user = await User.findOne({username: req.params.username});
         if (user) {
-            let owner = profileOwner(user, res);
-            if (owner) {
+            if (isOwner(user, res.locals.username)) {
                 // Send All Data Back to User
                 res.status(200).json(user);
             } else {
@@ -57,8 +56,7 @@ router.put('/users/:username', authenticate, async (req, res, next) => {
         let user = await User.findOne({username: req.params.username});
         if (user) {
             // Make sure user submitting request is the account owner
-            let owner = profileOwner(user, res);
-            if (owner) {
+            if (isOwner(user.username, res.locals.username)) {
                 // Update Data That Was Sent
                 for (const property in value) {
                     user[property] = value[property];
@@ -94,8 +92,8 @@ router.delete('/users/:username', authenticate, async (req, res, next) => {
     try {
         const user = await User.findOne({username: req.params.username});
         if (user) {
-            let owner = profileOwner(user, res);
-            if (owner) {
+            // Make sure user submitting request is the account owner
+            if (isOwner(user.username, res.locals.username)) {
                 // Delete User
                 await User.deleteOne({ username: res.locals.username});
                 res.status(200).json({
